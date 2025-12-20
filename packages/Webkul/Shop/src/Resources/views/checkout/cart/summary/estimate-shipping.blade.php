@@ -173,7 +173,7 @@
 
             data() {
                 return {
-                    selectedCountry: '',
+                    selectedCountry: '{{ config("app.default_country", "BR") }}',
 
                     countries: [],
 

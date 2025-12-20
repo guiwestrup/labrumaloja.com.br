@@ -256,7 +256,7 @@ return [
                         'back'             => 'Voltar',
                         'billing-address'  => 'Endereço de Cobrança',
                         'city'             => 'Cidade',
-                        'company-name'     => 'Nome da Empresa',
+                        'company-name'     => 'Nome do cliente',
                         'confirm'          => 'Confirmar',
                         'country'          => 'País',
                         'edit-btn'         => 'Editar Endereço',
@@ -1794,7 +1794,7 @@ return [
 
                     'create' => [
                         'city'               => 'Cidade',
-                        'company-name'       => 'Nome da Empresa',
+                        'company-name'       => 'Nome do cliente',
                         'country'            => 'País',
                         'create-btn'         => 'Criar',
                         'create-address-btn' => 'Adicionar Novo Endereço',
@@ -1814,7 +1814,7 @@ return [
 
                     'edit' => [
                         'city'            => 'Cidade',
-                        'company-name'    => 'Nome da Empresa',
+                        'company-name'    => 'Nome do cliente',
                         'country'         => 'País',
                         'default-address' => 'Endereço Padrão',
                         'edit-btn'        => 'Editar',

@@ -46,8 +46,8 @@
                 <x-shop::form :action="route('shop.customers.account.addresses.store')">
                     {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.before') !!}
 
-                    <!--Company Name -->
-                    <x-shop::form.control-group>
+                    <!--Company Name - Ocultado para vendas B2C (apenas pessoa física) -->
+                    {{-- <x-shop::form.control-group>
                         <x-shop::form.control-group.label>
                             @lang('shop::app.customers.account.addresses.create.company-name')
                         </x-shop::form.control-group.label>
@@ -63,7 +63,7 @@
                         <x-shop::form.control-group.error control-name="company_name" />
                     </x-shop::form.control-group>
 
-                    {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.company_name.after') !!}
+                    {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.company_name.after') !!} --}}
 
                     <!-- First Name -->
                     <x-shop::form.control-group>
@@ -125,8 +125,8 @@
 
                     {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.email.after') !!}
 
-                    <!-- Vat Id -->
-                    <x-shop::form.control-group>
+                    <!-- Vat Id - Ocultado para o Brasil -->
+                    {{-- <x-shop::form.control-group>
                         <x-shop::form.control-group.label>
                             @lang('shop::app.customers.account.addresses.create.vat-id')
                         </x-shop::form.control-group.label>
@@ -140,7 +140,7 @@
                         />
 
                         <x-shop::form.control-group.error control-name="vat_id" />
-                    </x-shop::form.control-group>
+                    </x-shop::form.control-group> --}}
 
                     {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.vat_id.after') !!}
 
@@ -187,39 +187,22 @@
 
                     {!! view_render_event('bagisto.shop.customers.account.addresses.create_form_controls.street_address.after') !!}
 
-                    <!-- Country List-->
-                    <x-shop::form.control-group>
-                        <x-shop::form.control-group.label class="{{ core()->isCountryRequired() ? 'required' : '' }}">
-                            @lang('shop::app.customers.account.addresses.create.country')
-                        </x-shop::form.control-group.label>
-            
+                    <!-- Country (oculto, sempre BR) -->
+                    <x-shop::form.control-group class="hidden">
                         <x-shop::form.control-group.control
-                            type="select"
+                            type="hidden"
                             name="country"
-                            rules="{{ core()->isCountryRequired() ? 'required' : '' }}"
-                            v-model="country"
-                            :aria-label="trans('shop::app.customers.account.addresses.create.country')"
-                            :label="trans('shop::app.customers.account.addresses.create.country')"
-                        >
-                            <option value="">
-                                @lang('shop::app.customers.account.addresses.create.select-country')
-                            </option>
-            
-                            @foreach (core()->countries() as $country)
-                                <option value="{{ $country->code }}">{{ $country->name }}</option>
-                            @endforeach
-                        </x-shop::form.control-group.control>
-            
-                        <x-shop::form.control-group.error control-name="country" />
+                            value="BR"
+                        />
                     </x-shop::form.control-group>
         
-                    <!-- State Name -->
+                    <!-- State Name - Sempre exibe estados do Brasil -->
                     <x-shop::form.control-group>
                         <x-shop::form.control-group.label class="{{ core()->isStateRequired() ? 'required' : '' }}">
                             @lang('shop::app.customers.account.addresses.create.state')
                         </x-shop::form.control-group.label>
         
-                        <template v-if="haveStates()">
+                        <template v-if="countryStates && countryStates['BR']">
                             <x-shop::form.control-group.control
                                 type="select"
                                 id="state"
@@ -229,8 +212,11 @@
                                 :label="trans('shop::app.customers.account.addresses.create.state')"
                                 :placeholder="trans('shop::app.customers.account.addresses.create.state')"
                             >
+                                <option value="">
+                                    @lang('shop::app.customers.account.addresses.create.select-state')
+                                </option>
                                 <option 
-                                    v-for='(state, index) in countryStates[country]'
+                                    v-for='(state, index) in countryStates["BR"]'
                                     :value="state.code"
                                 >
                                     @{{ state.default_name }}
@@ -357,7 +343,7 @@
     
                 data() {
                     return {
-                        country: "{{ old('country') }}",
+                        country: 'BR', // Sempre Brasil
 
                         state: "{{ old('state') }}",
 
@@ -372,7 +358,7 @@
                         * It ensures that the final result is a boolean value,
                         * true if the array has a length greater than 0, and otherwise false.
                         */
-                        return !!this.countryStates[this.country]?.length;
+                        return !!this.countryStates?.['BR']?.length;
                     },
                 }
             });

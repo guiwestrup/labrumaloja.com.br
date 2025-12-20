@@ -71,7 +71,7 @@
                     <x-slot:content class="!p-0">
                         @foreach ($channels as $channel)
                             <a
-                                href="?{{ Arr::query(['channel' => $channel->code, 'locale' => $channel->default_locale?->code ?? $currentLocale->code]) }}"
+                                href="?{{ Arr::query(['channel' => $channel->code, 'locale' => $channel->default_locale?->code ?? $currentLocale?->code ?? '']) }}"
                                 class="flex cursor-pointer gap-2.5 px-5 py-2 text-base hover:bg-gray-100 dark:text-white dark:hover:bg-gray-950"
                             >
                                 {{ $channel->name }}
@@ -90,12 +90,12 @@
                         >
                             <span class="icon-language text-2xl"></span>
 
-                            {{ $currentLocale->name }}
+                            {{ $currentLocale?->name ?? 'N/A' }}
                             
                             <input
                                 type="hidden"
                                 name="locale"
-                                value="{{ $currentLocale->code }}"
+                                value="{{ $currentLocale?->code ?? '' }}"
                             />
 
                             <span class="icon-sort-down text-2xl"></span>
@@ -107,7 +107,7 @@
                         @foreach ($currentChannel->locales->sortBy('name') as $locale)
                             <a
                                 href="?{{ Arr::query(['channel' => $currentChannel->code, 'locale' => $locale->code]) }}"
-                                class="flex gap-2.5 px-5 py-2 text-base  cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-950 dark:text-white {{ $locale->code == $currentLocale->code ? 'bg-gray-100 dark:bg-gray-950' : ''}}"
+                                class="flex gap-2.5 px-5 py-2 text-base  cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-950 dark:text-white {{ $locale->code == ($currentLocale?->code ?? '') ? 'bg-gray-100 dark:bg-gray-950' : ''}}"
                             >
                                 {{ $locale->name }}
                             </a>

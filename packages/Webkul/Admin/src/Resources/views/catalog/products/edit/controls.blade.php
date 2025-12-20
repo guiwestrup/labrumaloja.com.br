@@ -6,19 +6,20 @@
             :rules="{{ $attribute->validations }}"
             value="{{ old($attribute->code) ?: $product[$attribute->code] }}"
             v-slot="{ field }"
-            label="{{ $attribute->admin_name }}"
+            label="{{ $attribute->name ?: $attribute->admin_name }}"
         >
             @php
-                $placeholder = $attribute->admin_name;
+                $placeholder = $attribute->name ?: $attribute->admin_name;
                 
                 // Adiciona unidades para campos de shipping
+                $attrName = $attribute->name ?: $attribute->admin_name;
                 if ($attribute->code == 'weight') {
                     $weightUnit = core()->getConfigData('general.general.locale_options.weight_unit') ?? 'kgs';
-                    $placeholder = $attribute->admin_name . ' (' . ($weightUnit == 'kgs' ? 'kg' : 'lbs') . ')';
+                    $placeholder = $attrName . ' (' . ($weightUnit == 'kgs' ? 'kg' : 'lbs') . ')';
                 } elseif (in_array($attribute->code, ['width', 'height', 'depth'])) {
-                    $placeholder = $attribute->admin_name . ' (cm)';
+                    $placeholder = $attrName . ' (cm)';
                 } elseif ($attribute->validation == 'decimal' || $attribute->validation == 'numeric') {
-                    $placeholder = $attribute->admin_name . ' (número)';
+                    $placeholder = $attrName . ' (número)';
                 }
             @endphp
             
@@ -44,7 +45,7 @@
             :name="$attribute->code"
             ::rules="{{ $attribute->validations }}"
             value="{{ old($attribute->code) ?: $product[$attribute->code] }}"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
         >
             <x-slot:currency :class="'dark:text-gray-300 ' . ($attribute->code == 'price' ? 'bg-gray-50 dark:bg-gray-900 text-xl' : '')">
                 @php
@@ -63,7 +64,7 @@
             :name="$attribute->code"
             ::rules="{{ $attribute->validations }}"
             value="{{ old($attribute->code) ?: $product[$attribute->code] }}"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
             :tinymce="(bool) $attribute->enable_wysiwyg"
             :prompt="core()->getConfigData('general.magic_ai.content_generation.product_' . $attribute->code . '_prompt')"
         />
@@ -76,7 +77,7 @@
             :name="$attribute->code"
             ::rules="{{ $attribute->validations }}"
             value="{{ old($attribute->code) ?: $product[$attribute->code] }}"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
         />
 
         @break
@@ -86,7 +87,7 @@
             :name="$attribute->code"
             ::rules="{{ $attribute->validations }}"
             value="{{ old($attribute->code) ?: $product[$attribute->code] }}"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
         />
 
         @break
@@ -97,7 +98,7 @@
             :name="$attribute->code"
             ::rules="{{ $attribute->validations }}"
             :value="old($attribute->code) ?: $product[$attribute->code]"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
         >
             @php
                 $selectedOption = old($attribute->code) ?: $product[$attribute->code];
@@ -130,7 +131,7 @@
             :id="$attribute->code . '[]'"
             :name="$attribute->code . '[]'"
             ::rules="{{ $attribute->validations }}"
-            :label="$attribute->admin_name"
+            :label="$attribute->name ?: $attribute->admin_name"
         >
             @foreach ($attribute->options()->orderBy('sort_order')->get() as $option)
                 <option
@@ -157,7 +158,7 @@
                     ::rules="{{ $attribute->validations }}"
                     :value="$option->id"
                     :for="$attribute->code . '_' . $option->id"
-                    :label="$attribute->admin_name"
+                    :label="$attribute->name ?: $attribute->admin_name"
                     :checked="in_array($option->id, $selectedOption)"
                 />
 
@@ -180,7 +181,7 @@
                 :id="$attribute->code"
                 :name="$attribute->code"
                 :value="1"
-                :label="$attribute->admin_name"
+                :label="$attribute->name ?: $attribute->admin_name"
                 :checked="(boolean) $selectedValue"
             />
 
@@ -188,7 +189,7 @@
                 for="{{ $attribute->code }}"
                 class="cursor-pointer select-none text-sm font-medium text-gray-600 dark:text-gray-300"
             >
-                {{ $attribute->admin_name }}
+                {{ $attribute->name ?: $attribute->admin_name }}
             </label>
         </div>
 
@@ -228,7 +229,7 @@
                 name="{{ $attribute->code }}"
                 :rules="{{ $attribute->validations }}"
                 v-slot="{ handleChange, handleBlur }"
-                label="{{ $attribute->admin_name }}"
+                label="{{ $attribute->name ?: $attribute->admin_name }}"
             >
                 <input
                     type="file"

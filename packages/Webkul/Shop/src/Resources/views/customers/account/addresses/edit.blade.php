@@ -58,8 +58,8 @@
             >
                 {!! view_render_event('bagisto.shop.customers.account.address.edit_form_controls.before', ['address' => $address]) !!}
 
-                <!-- Company Name -->
-                <x-shop::form.control-group>
+                <!-- Company Name - Ocultado para vendas B2C (apenas pessoa física) -->
+                {{-- <x-shop::form.control-group>
                     <x-shop::form.control-group.label>
                         @lang('shop::app.customers.account.addresses.edit.company-name')
                     </x-shop::form.control-group.label>
@@ -75,7 +75,7 @@
                     <x-shop::form.control-group.error control-name="company_name" />
                 </x-shop::form.control-group>
 
-                {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.company_name.after', ['address' => $address]) !!}
+                {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.company_name.after', ['address' => $address]) !!} --}}
 
                 <!-- First Name -->
                 <x-shop::form.control-group>
@@ -137,8 +137,8 @@
 
                 {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.email.after', ['address' => $address]) !!}
 
-                <!-- Vat ID -->
-                <x-shop::form.control-group>
+                <!-- Vat ID - Ocultado para o Brasil -->
+                {{-- <x-shop::form.control-group>
                     <x-shop::form.control-group.label>
                         @lang('shop::app.customers.account.addresses.edit.vat-id')
                     </x-shop::form.control-group.label>
@@ -154,7 +154,7 @@
                     <x-shop::form.control-group.error control-name="vat_id" />
                 </x-shop::form.control-group>
 
-                {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.vat_id.after', ['address' => $address]) !!}
+                {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.vat_id.after', ['address' => $address]) !!} --}}
 
                 @php
                     $addresses = explode(PHP_EOL, $address->address);
@@ -201,41 +201,23 @@
 
                 {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.street-addres.after', ['address' => $address]) !!}
 
-                <!-- Country Name -->
-                <x-shop::form.control-group>
-                    <x-shop::form.control-group.label class="{{ core()->isCountryRequired() ? 'required' : '' }}">
-                        @lang('shop::app.customers.account.addresses.edit.country')
-                    </x-shop::form.control-group.label>
-
+                <!-- Country (oculto, sempre BR) -->
+                <x-shop::form.control-group class="hidden">
                     <x-shop::form.control-group.control
-                        type="select"
+                        type="hidden"
                         name="country"
-                        rules="{{ core()->isStateRequired() ? 'required' : '' }}"
-                        v-model="addressData.country"
-                        :aria-label="trans('shop::app.customers.account.addresses.edit.country')"
-                        :label="trans('shop::app.customers.account.addresses.edit.country')"
-                    >
-                        @foreach (core()->countries() as $country)
-                            <option 
-                                {{ $country->code === config('app.default_country') ? 'selected' : '' }}  
-                                value="{{ $country->code }}"
-                            >
-                                {{ $country->name }}
-                            </option>
-                        @endforeach
-                    </x-shop::form.control-group.control>
-
-                    <x-shop::form.control-group.error control-name="country" />
+                        value="BR"
+                    />
                 </x-shop::form.control-group>
 
                 {!! view_render_event('bagisto.shop.customers.account.addresses.edit_form_controls.country.after', ['address' => $address]) !!}
 
-                <!-- State Name -->
+                <!-- State Name - Sempre exibe estados do Brasil -->
                 <x-shop::form.control-group>
                     <x-shop::form.control-group.label class="{{ core()->isStateRequired() ? 'required' : '' }}">
                         @lang('shop::app.customers.account.addresses.edit.state')
                     </x-shop::form.control-group.label>
-                    <template v-if="haveStates()">
+                    <template v-if="countryStates && countryStates['BR']">
                         <x-shop::form.control-group.control
                             type="select"
                             name="state"
@@ -245,8 +227,11 @@
                             :label="trans('shop::app.customers.account.addresses.edit.state')"
                             :placeholder="trans('shop::app.customers.account.addresses.edit.state')"
                         >
+                            <option value="">
+                                @lang('shop::app.customers.account.addresses.edit.select-state')
+                            </option>
                             <option 
-                                v-for='(state, index) in countryStates[addressData.country]'
+                                v-for='(state, index) in countryStates["BR"]'
                                 :value="state.code"
                             >
                                 @{{ state.default_name }}
@@ -346,7 +331,7 @@
                 data() {
                     return {
                         addressData: {
-                            country: "{{ old('country') ?? $address->country }}",
+                            country: 'BR', // Sempre Brasil
 
                             state: "{{ old('state') ?? $address->state }}",
                         },
@@ -357,7 +342,7 @@
     
                 methods: {
                     haveStates() {
-                        return !!this.countryStates[this.addressData.country]?.length;
+                        return !!this.countryStates?.['BR']?.length;
                     },
                 },
             });

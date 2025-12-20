@@ -281,6 +281,19 @@ class Core
             $this->currentLocale = $this->localeRepository->findOneByField('code', config('app.fallback_locale'));
         }
 
+        // Fallback: tentar usar o locale padrão do canal atual
+        if (! $this->currentLocale) {
+            $currentChannel = $this->getCurrentChannel();
+            if ($currentChannel && $currentChannel->default_locale) {
+                $this->currentLocale = $currentChannel->default_locale;
+            }
+        }
+
+        // Último fallback: usar o primeiro locale disponível no banco
+        if (! $this->currentLocale) {
+            $this->currentLocale = $this->localeRepository->first();
+        }
+
         return $this->currentLocale;
     }
 
@@ -294,7 +307,11 @@ class Core
         $code = request()->query('locale');
 
         if ($code) {
-            return $this->localeRepository->findOneByField('code', $code);
+            $locale = $this->localeRepository->findOneByField('code', $code);
+            // Se o locale da query não existir, fazer fallback para getCurrentLocale
+            if ($locale) {
+                return $locale;
+            }
         }
 
         return $this->getCurrentLocale();

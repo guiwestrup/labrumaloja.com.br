@@ -133,7 +133,7 @@ return [
                 'create' => [
                     'add-address'    => 'Adicionar Endereço',
                     'city'           => 'Cidade',
-                    'company-name'   => 'Nome da Empresa',
+                    'company-name'   => 'Nome do cliente',
                     'country'        => 'País',
                     'email'          => 'E-mail',
                     'first-name'     => 'Nome',
@@ -151,7 +151,7 @@ return [
 
                 'edit' => [
                     'city'           => 'Cidade',
-                    'company-name'   => 'Nome da Empresa',
+                    'company-name'   => 'Nome do cliente',
                     'country'        => 'País',
                     'edit'           => 'Editar',
                     'email'          => 'E-mail',
@@ -1012,7 +1012,7 @@ return [
                 'check-billing-address'  => 'Endereço de faturação em falta.',
                 'check-shipping-address' => 'Endereço de envio em falta.',
                 'city'                   => 'Cidade',
-                'company-name'           => 'Nome da empresa',
+                'company-name'           => 'Nome do cliente',
                 'confirm'                => 'Confirmar',
                 'country'                => 'País',
                 'email'                  => 'E-mail',
