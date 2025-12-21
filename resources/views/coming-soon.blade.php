@@ -4,7 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>La Bruma - Em Breve</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>La Bruma - Biquínis, Moda Praia e Lingerie de Alta Qualidade | Em Breve</title>
+    <meta name="description" content="La Bruma - Lingerie & Alma do Mar. Em breve, nossa loja online com biquínis, moda praia e lingerie de alta qualidade. Siga-nos no Instagram e entre em contato pelo WhatsApp.">
+    <meta name="keywords" content="biquínis, moda praia, lingerie, alta qualidade, La Bruma, biquíni, maiô, moda feminina, praia, verão, roupa íntima">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="La Bruma - Biquínis, Moda Praia e Lingerie de Alta Qualidade">
+    <meta property="og:description" content="Lingerie & Alma do Mar. Em breve, nossa loja online com biquínis, moda praia e lingerie de alta qualidade.">
+    <meta property="og:image" content="{{ url('/loja-frente.jpeg') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="La Bruma - Loja Física - Lingerie & Alma do Mar">
+    <meta property="og:site_name" content="La Bruma">
+    <meta property="og:locale" content="pt_BR">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url('/') }}">
+    <meta name="twitter:title" content="La Bruma - Biquínis, Moda Praia e Lingerie de Alta Qualidade">
+    <meta name="twitter:description" content="Lingerie & Alma do Mar. Em breve, nossa loja online com biquínis, moda praia e lingerie de alta qualidade.">
+    <meta name="twitter:image" content="{{ url('/loja-frente.jpeg') }}">
+    <meta name="twitter:image:alt" content="La Bruma - Loja Física - Lingerie & Alma do Mar">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#f5f1e8">
+    <link rel="canonical" href="{{ url('/') }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url('/labruma-sereia-white-removebg-preview.ico') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url('/labruma-sereia-white-removebg-preview.ico') }}">
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YEZ7E5VTHN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-YEZ7E5VTHN');
+    </script>
+    
     <style>
         * {
             margin: 0;
