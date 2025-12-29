@@ -30,17 +30,12 @@ class ProductResource extends JsonResource
     {
         $productTypeInstance = $this->getTypeInstance();
 
-        // #region agent log
-        $urlKeyValue = $this->url_key;
-        file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_A','timestamp'=>time()*1000,'location'=>'ProductResource.php:38','message'=>'ProductResource toArray - url_key value','data'=>['product_id'=>$this->id,'url_key'=>$urlKeyValue,'url_key_is_null'=>is_null($urlKeyValue),'url_key_is_empty'=>empty($urlKeyValue)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A'])."\n", FILE_APPEND);
-        // #endregion
-
         return [
             'id'          => $this->id,
             'sku'         => $this->sku,
             'name'        => $this->name,
             'description' => $this->description,
-            'url_key'     => $urlKeyValue,
+            'url_key'     => $this->url_key,
             'base_image'  => product_image()->getProductBaseImage($this),
             'images'      => product_image()->getGalleryImages($this),
             'is_new'      => (bool) $this->new,

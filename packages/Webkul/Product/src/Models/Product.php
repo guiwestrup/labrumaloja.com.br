@@ -384,12 +384,6 @@ class Product extends Model implements ProductContract
      */
     public function getAttribute($key)
     {
-        // #region agent log
-        if ($key === 'url_key' && isset($this->id)) {
-            file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_B','timestamp'=>time()*1000,'location'=>'Product.php:385','message'=>'Product getAttribute - url_key accessed','data'=>['product_id'=>$this->id,'key'=>$key,'has_attribute_in_cache'=>isset($this->attributes[$key]),'attribute_family_id'=>$this->attribute_family_id],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B'])."\n", FILE_APPEND);
-        }
-        // #endregion
-
         if (! method_exists(static::class, $key)
             && ! in_array($key, [
                 'pivot',
@@ -401,19 +395,7 @@ class Product extends Model implements ProductContract
             if (isset($this->id)) {
                 $attribute = $this->checkInLoadedFamilyAttributes()->where('code', $key)->first();
 
-                // #region agent log
-                if ($key === 'url_key') {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_C','timestamp'=>time()*1000,'location'=>'Product.php:396','message'=>'Product getAttribute - attribute found in family','data'=>['product_id'=>$this->id,'attribute_found'=>!is_null($attribute),'attribute_id'=>$attribute?->id,'attribute_code'=>$attribute?->code],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'C'])."\n", FILE_APPEND);
-                }
-                // #endregion
-
                 $this->attributes[$key] = $this->getCustomAttributeValue($attribute);
-
-                // #region agent log
-                if ($key === 'url_key') {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_D','timestamp'=>time()*1000,'location'=>'Product.php:398','message'=>'Product getAttribute - custom attribute value retrieved','data'=>['product_id'=>$this->id,'url_key_value'=>$this->attributes[$key],'url_key_is_null'=>is_null($this->attributes[$key])],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'D'])."\n", FILE_APPEND);
-                }
-                // #endregion
 
                 return $this->getAttributeValue($key);
             }
@@ -444,27 +426,12 @@ class Product extends Model implements ProductContract
     public function getCustomAttributeValue($attribute)
     {
         if (! $attribute) {
-            // #region agent log
-            if (isset($this->id)) {
-                file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_E','timestamp'=>time()*1000,'location'=>'Product.php:428','message'=>'Product getCustomAttributeValue - attribute is null','data'=>['product_id'=>$this->id],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'E'])."\n", FILE_APPEND);
-            }
-            // #endregion
             return;
         }
 
         $locale = core()->getRequestedLocaleCodeInRequestedChannel();
 
         $channel = core()->getRequestedChannelCode();
-
-        // #region agent log
-        $isUrlKey = ($attribute->code ?? '') === 'url_key';
-        if ($isUrlKey && isset($this->id)) {
-            $urlKeyValues = $this->attribute_values->where('attribute_id', $attribute->id)->map(function($av) {
-                return ['id' => $av->id, 'locale' => $av->locale, 'channel' => $av->channel, 'text_value' => $av->text_value];
-            })->values()->toArray();
-            file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_F','timestamp'=>time()*1000,'location'=>'Product.php:432','message'=>'Product getCustomAttributeValue - starting search','data'=>['product_id'=>$this->id,'attribute_id'=>$attribute->id,'attribute_code'=>$attribute->code,'locale'=>$locale,'channel'=>$channel,'value_per_channel'=>$attribute->value_per_channel??false,'value_per_locale'=>$attribute->value_per_locale??false,'attribute_values_count'=>$this->attribute_values->count(),'url_key_values_in_db'=>$urlKeyValues],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'F'])."\n", FILE_APPEND);
-        }
-        // #endregion
 
         if (empty($this->attribute_values->count())) {
             $this->load('attribute_values');
@@ -478,12 +445,6 @@ class Product extends Model implements ProductContract
                     ->where('attribute_id', $attribute->id)
                     ->first();
 
-                // #region agent log
-                if ($isUrlKey && isset($this->id)) {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_G','timestamp'=>time()*1000,'location'=>'Product.php:442','message'=>'Product getCustomAttributeValue - searched channel+locale','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'G'])."\n", FILE_APPEND);
-                }
-                // #endregion
-
                 if (empty($attributeValue) || empty($attributeValue[$attribute->column_name])) {
                     $attributeValue = $this->attribute_values
                         ->where('channel', core()->getDefaultChannelCode())
@@ -491,24 +452,12 @@ class Product extends Model implements ProductContract
                         ->where('attribute_id', $attribute->id)
                         ->first();
 
-                    // #region agent log
-                    if ($isUrlKey && isset($this->id)) {
-                        file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_H','timestamp'=>time()*1000,'location'=>'Product.php:449','message'=>'Product getCustomAttributeValue - fallback to default channel+locale','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'H'])."\n", FILE_APPEND);
-                    }
-                    // #endregion
-
                     // Fallback final: buscar em qualquer locale disponível (especialmente importante para url_key)
                     if (empty($attributeValue) || empty($attributeValue[$attribute->column_name])) {
                         $attributeValue = $this->attribute_values
                             ->where('attribute_id', $attribute->id)
                             ->whereNotNull($attribute->column_name)
                             ->first();
-
-                        // #region agent log
-                        if ($isUrlKey && isset($this->id)) {
-                            file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_O','timestamp'=>time()*1000,'location'=>'Product.php:496','message'=>'Product getCustomAttributeValue - fallback to any available locale (channel+locale case)','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null,'locale_found'=>$attributeValue->locale??null],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'O'])."\n", FILE_APPEND);
-                        }
-                        // #endregion
                     }
                 }
             } else {
@@ -516,12 +465,6 @@ class Product extends Model implements ProductContract
                     ->where('channel', $channel)
                     ->where('attribute_id', $attribute->id)
                     ->first();
-
-                // #region agent log
-                if ($isUrlKey && isset($this->id)) {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_I','timestamp'=>time()*1000,'location'=>'Product.php:456','message'=>'Product getCustomAttributeValue - searched channel only','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'I'])."\n", FILE_APPEND);
-                }
-                // #endregion
             }
         } else {
             if ($attribute->value_per_locale) {
@@ -530,23 +473,11 @@ class Product extends Model implements ProductContract
                     ->where('attribute_id', $attribute->id)
                     ->first();
 
-                // #region agent log
-                if ($isUrlKey && isset($this->id)) {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_J','timestamp'=>time()*1000,'location'=>'Product.php:463','message'=>'Product getCustomAttributeValue - searched locale only','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'J'])."\n", FILE_APPEND);
-                }
-                // #endregion
-
                 if (empty($attributeValue) || empty($attributeValue[$attribute->column_name])) {
                     $attributeValue = $this->attribute_values
                         ->where('locale', core()->getDefaultLocaleCodeFromDefaultChannel())
                         ->where('attribute_id', $attribute->id)
                         ->first();
-
-                    // #region agent log
-                    if ($isUrlKey && isset($this->id)) {
-                        file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_K','timestamp'=>time()*1000,'location'=>'Product.php:469','message'=>'Product getCustomAttributeValue - fallback to default locale','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'K'])."\n", FILE_APPEND);
-                    }
-                    // #endregion
 
                     // Fallback final: buscar em qualquer locale disponível (especialmente importante para url_key)
                     if (empty($attributeValue) || empty($attributeValue[$attribute->column_name])) {
@@ -554,34 +485,16 @@ class Product extends Model implements ProductContract
                             ->where('attribute_id', $attribute->id)
                             ->whereNotNull($attribute->column_name)
                             ->first();
-
-                        // #region agent log
-                        if ($isUrlKey && isset($this->id)) {
-                            file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_N','timestamp'=>time()*1000,'location'=>'Product.php:477','message'=>'Product getCustomAttributeValue - fallback to any available locale','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null,'locale_found'=>$attributeValue->locale??null],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'N'])."\n", FILE_APPEND);
-                        }
-                        // #endregion
                     }
                 }
             } else {
                 $attributeValue = $this->attribute_values
                     ->where('attribute_id', $attribute->id)
                     ->first();
-
-                // #region agent log
-                if ($isUrlKey && isset($this->id)) {
-                    file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_L','timestamp'=>time()*1000,'location'=>'Product.php:475','message'=>'Product getCustomAttributeValue - searched by attribute_id only','data'=>['product_id'=>$this->id,'attribute_value_found'=>!is_null($attributeValue),'value'=>$attributeValue[$attribute->column_name]??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'L'])."\n", FILE_APPEND);
-                }
-                // #endregion
             }
         }
 
         $result = $attributeValue[$attribute->column_name] ?? $attribute->default_value;
-
-        // #region agent log
-        if ($isUrlKey && isset($this->id)) {
-            file_put_contents('/Users/guilhermewestrup/projetos/labrumaloja.com.br/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_M','timestamp'=>time()*1000,'location'=>'Product.php:481','message'=>'Product getCustomAttributeValue - final result','data'=>['product_id'=>$this->id,'result'=>$result,'result_is_null'=>is_null($result),'default_value'=>$attribute->default_value],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'M'])."\n", FILE_APPEND);
-        }
-        // #endregion
 
         return $result;
     }
