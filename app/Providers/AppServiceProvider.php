@@ -36,6 +36,18 @@ class AppServiceProvider extends ServiceProvider
             BaseProductAttributeValueRepository::class,
             ProductAttributeValueRepository::class
         );
+
+        // Override ProductsCategoriesProxyController with custom implementation
+        $this->app->bind(
+            \Webkul\Shop\Http\Controllers\ProductsCategoriesProxyController::class,
+            \App\Http\Controllers\ProductsCategoriesProxyController::class
+        );
+
+        // Override CategoryController with custom implementation
+        $this->app->bind(
+            \Webkul\Admin\Http\Controllers\Catalog\CategoryController::class,
+            \App\Http\Controllers\Catalog\CategoryController::class
+        );
     }
 
     /**
