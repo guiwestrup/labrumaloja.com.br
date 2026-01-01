@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Webkul\Product\Repositories\ProductAttributeValueRepository as BaseProductAttributeValueRepository;
 
@@ -17,12 +18,22 @@ class ProductAttributeValueRepository extends BaseProductAttributeValueRepositor
      */
     public function saveValues($data, $product, $attributes)
     {
+        Log::info('ProductAttributeValueRepository::saveValues called', [
+            'product_id' => $product->id,
+            'attributes_count' => is_countable($attributes) ? count($attributes) : 0,
+            'locale' => $data['locale'] ?? 'not set',
+            'channel' => $data['channel'] ?? 'not set',
+        ]);
+
         $attributeValuesToInsert = [];
 
         // Ensure attribute_values relationship is loaded
         if (! $product->relationLoaded('attribute_values')) {
             $product->load('attribute_values');
         }
+
+        $processedCount = 0;
+        $skippedCount = 0;
 
         foreach ($attributes as $attribute) {
             if ($attribute->type === 'boolean') {
@@ -35,8 +46,15 @@ class ProductAttributeValueRepository extends BaseProductAttributeValueRepositor
 
             // Allow empty strings for text/textarea fields, but skip if truly not set
             if (! array_key_exists($attribute->code, $data)) {
+                Log::debug('Attribute not in data, skipping', [
+                    'attribute_code' => $attribute->code,
+                    'attribute_name' => $attribute->name ?? $attribute->admin_name ?? 'N/A',
+                ]);
+                $skippedCount++;
                 continue;
             }
+
+            $processedCount++;
 
             if (
                 $attribute->type === 'price'
@@ -121,6 +139,13 @@ class ProductAttributeValueRepository extends BaseProductAttributeValueRepositor
                     'locale'       => $locale,
                     'unique_id'    => $uniqueId,
                 ]);
+
+                Log::debug('Will insert attribute value', [
+                    'attribute_code' => $attribute->code,
+                    'value' => is_string($data[$attribute->code]) ? substr($data[$attribute->code], 0, 100) : $data[$attribute->code],
+                    'locale' => $locale,
+                    'channel' => $channel,
+                ]);
             } else {
                 $previousTextValue = $attributeValue->text_value;
 
@@ -145,6 +170,12 @@ class ProductAttributeValueRepository extends BaseProductAttributeValueRepositor
                     }
                 }
 
+                Log::debug('Will update attribute value', [
+                    'attribute_code' => $attribute->code,
+                    'old_value' => is_string($previousTextValue) ? substr($previousTextValue, 0, 100) : $previousTextValue,
+                    'new_value' => is_string($data[$attribute->code]) ? substr($data[$attribute->code], 0, 100) : $data[$attribute->code],
+                ]);
+
                 $attributeValue = $this->update([
                     $attribute->column_name => $data[$attribute->code],
                     'unique_id'             => $uniqueId,
@@ -152,9 +183,31 @@ class ProductAttributeValueRepository extends BaseProductAttributeValueRepositor
             }
         }
 
+        Log::info('Processed attributes summary', [
+            'product_id' => $product->id,
+            'total_attributes' => is_countable($attributes) ? count($attributes) : 0,
+            'processed' => $processedCount,
+            'skipped' => $skippedCount,
+            'to_insert' => count($attributeValuesToInsert),
+        ]);
+
         if (! empty($attributeValuesToInsert)) {
-            $this->insert($attributeValuesToInsert);
+            try {
+                $this->insert($attributeValuesToInsert);
+                Log::info('Attribute values inserted successfully', [
+                    'product_id' => $product->id,
+                    'count' => count($attributeValuesToInsert),
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to insert attribute values', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                throw $e;
+            }
+        } else {
+            Log::info('No attribute values to insert', ['product_id' => $product->id]);
         }
     }
 }
-

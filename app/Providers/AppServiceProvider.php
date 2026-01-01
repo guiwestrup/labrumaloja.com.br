@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use App\Http\Requests\ProductForm;
 use App\Repositories\ProductAttributeValueRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\ParallelTesting;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\ServiceProvider;
+use Webkul\Admin\Http\Requests\ProductForm as BaseProductForm;
 use Webkul\Product\Repositories\ProductAttributeValueRepository as BaseProductAttributeValueRepository;
 
 class AppServiceProvider extends ServiceProvider
@@ -47,6 +49,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             \Webkul\Admin\Http\Controllers\Catalog\CategoryController::class,
             \App\Http\Controllers\Catalog\CategoryController::class
+        );
+
+        // Override ProductController with custom implementation
+        $this->app->bind(
+            \Webkul\Admin\Http\Controllers\Catalog\ProductController::class,
+            \App\Http\Controllers\Catalog\ProductController::class
+        );
+
+        // Override ProductForm with custom implementation
+        $this->app->bind(
+            BaseProductForm::class,
+            ProductForm::class
         );
     }
 

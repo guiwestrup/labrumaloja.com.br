@@ -16,9 +16,22 @@ abstract class AbstractType extends BaseAbstractType
      */
     public function update(array $data, $id, $attributes = [])
     {
+        \Log::info('AbstractType::update called', [
+            'product_id' => $id,
+            'data_keys' => array_keys($data),
+            'attributes' => $attributes,
+        ]);
+
         $product = $this->productRepository->find($id);
 
+        if (! $product) {
+            \Log::error('Product not found', ['id' => $id]);
+            throw new \Exception("Product with ID {$id} not found");
+        }
+
         $product->update($data);
+
+        \Log::info('Product base updated', ['product_id' => $id]);
 
         /**
          * Ensure locale and channel are in $data array for translated attributes
@@ -65,7 +78,16 @@ abstract class AbstractType extends BaseAbstractType
             $customAttributes = $product->attribute_family->custom_attributes()->get();
         }
 
+        \Log::info('About to save attribute values', [
+            'product_id' => $product->id,
+            'attributes_count' => $customAttributes->count(),
+            'locale' => $data['locale'] ?? 'not set',
+            'channel' => $data['channel'] ?? 'not set',
+        ]);
+
         $this->attributeValueRepository->saveValues($data, $product, $customAttributes);
+
+        \Log::info('Attribute values saved', ['product_id' => $product->id]);
 
         if (empty($data['channels'])) {
             $data['channels'][] = core()->getDefaultChannel()->id;
